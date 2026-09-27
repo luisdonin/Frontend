@@ -1,12 +1,15 @@
-const API_COMPRAS = "http://localhost:8082/ecommerce/compra";
+const API_COMPRAS = "http://localhost:8082/ecommerce/compra/transacao";
 
 async function formulario(event) {
     event.preventDefault();
+
     const form = event.target;
-    const statusEl = document.querySelector("#formStatus");
+    const statusEl = document.querySelector("#transacaoEfetuada");
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
+
     statusEl.textContent = "Enviando...";
+
     try {
         const response = await fetch(API_COMPRAS, {
             method: "POST",
@@ -15,17 +18,25 @@ async function formulario(event) {
             },
             body: JSON.stringify(payload),
         });
+
         if (!response.ok) {
             throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
         }
+
         const resultado = await response.json();
         console.log("Resposta da API: ", resultado);
-        statusEl.textContent = resultado.mensagem || "Compra realizada com sucesso!";
+
+        statusEl.textContent = resultado.mensagem || "Transação efetuada!";
         form.reset();
+
+        setTimeout(() => {
+            window.location.href = "confirmacao.html";
+        }, 1500);
 
     } catch (error) {
         console.error("Falha no envio:", error);
         statusEl.textContent = "Erro ao enviar dados.";
     }
 }
+
 document.getElementById("apiCompras").addEventListener("submit", formulario);
